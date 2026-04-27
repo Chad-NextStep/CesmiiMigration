@@ -75,6 +75,28 @@ app.get('/api/blog/posts/:id', async (req, res) => {
   }
 });
 
+// --- HubDB proxy: table rows ---
+app.get('/api/hubdb/:tableId/rows', async (req, res) => {
+  try {
+    const tableId = req.params.tableId;
+    const url = `${HUBSPOT_API_BASE}/cms/v3/hubdb/tables/${encodeURIComponent(tableId)}/rows?portalId=${HUBSPOT_PORTAL_ID}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('HubDB proxy error:', response.status, text);
+      return res.status(response.status).json({ error: 'HubDB API error' });
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('HubDB proxy error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // --- SPA-style fallback: serve index.html for unmatched routes ---
 // (Not needed since we use separate .html files, but keeps clean 404s)
 app.use((req, res) => {

@@ -22,13 +22,8 @@ async function fetchBlogPost(postId) {
 
 // === HubDB (direct client-side, public endpoints) ===
 
-async function fetchHubDBRows(tableId, { portalId } = {}) {
-  if (!portalId) {
-    const config = await getConfig();
-    portalId = config.portalId;
-  }
-  const url = `https://api.hubapi.com/cms/v3/hubdb/tables/${tableId}/rows?portalId=${portalId}`;
-  const res = await fetch(url);
+async function fetchHubDBRows(tableId) {
+  const res = await fetch(`/api/hubdb/${encodeURIComponent(tableId)}/rows`);
   if (!res.ok) throw new Error(`HubDB fetch failed: ${res.status}`);
   return res.json();
 }
