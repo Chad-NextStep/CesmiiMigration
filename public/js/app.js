@@ -24,6 +24,7 @@ function injectHeader() {
     { href: '/technology.html', label: 'Our Focus' },
     { href: '/projects.html', label: 'Impact' },
     { href: '/blog.html', label: 'News & Events' },
+    { href: '/test.html', label: 'Test' },
   ];
 
   const links = navItems
