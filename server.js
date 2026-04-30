@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { syncAll, loadPageMap } = require('./lib/sync-engine');
-const { fetchLandingPage, extractContent } = require('./lib/hubspot-pages');
+const { fetchLandingPage, fetchSitePage, extractContent } = require('./lib/hubspot-pages');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -118,7 +118,8 @@ app.get('/api/sync', async (req, res) => {
 app.get('/api/sync/debug/:pageId', async (req, res) => {
   try {
     const pageId = req.params.pageId;
-    const pageData = await fetchLandingPage(pageId, HUBSPOT_ACCESS_TOKEN);
+    const fetchFn = req.query.type === 'site-page' ? fetchSitePage : fetchLandingPage;
+    const pageData = await fetchFn(pageId, HUBSPOT_ACCESS_TOKEN);
     const extracted = extractContent(pageData.layoutSections || {});
     res.json({
       pageId,

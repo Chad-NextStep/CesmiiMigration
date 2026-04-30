@@ -1,10 +1,11 @@
 {
   "pages": [
     {
-      "hubspotPageId": "211958506011",
-      "localFile": "public/test.html",
-      "title": "Migration Test Page",
-      "lastUpdatedAt": "2026-04-30T16:36:52.955Z"
+      "hubspotPageId": "212039000991",
+      "pageType": "site-page",
+      "localFile": "public/about.html",
+      "title": "About",
+      "lastUpdatedAt": null
     }
   ],
   "pollIntervalMs": 30000
