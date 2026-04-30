@@ -1,0 +1,589 @@
+/**
+ * theme-bridge.css — Site-specific styles that supplement the HubSpot Dark Business Theme.
+ * The theme handles: layout grid, buttons, sections, headings, typography, header/footer base.
+ * This file covers: team/board cards & modals, blog content, loading/error states, custom overrides.
+ */
+
+/* === CSS Variables (supplements theme vars) === */
+:root {
+  --bridge-text: #dfe4ea;
+  --bridge-text-muted: rgba(255, 255, 255, 0.55);
+  --bridge-border: rgba(255, 255, 255, 0.1);
+  --bridge-card-bg: rgba(255, 255, 255, 0.05);
+  --bridge-radius: 14px;
+  --bridge-radius-sm: 10px;
+  --bridge-shadow-card: 0 2px 9px rgba(0, 0, 0, 0.25);
+  --bridge-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --bridge-shadow-elevated: 0 16px 40px rgba(0, 0, 0, 0.4);
+  --bridge-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --bridge-accent: #FF5F39;
+  --bridge-accent-hover: #E64E2A;
+  --bridge-primary: #3A6FE0;
+}
+
+/* === Team Grid === */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 2rem;
+  max-width: 1140px;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.team-card {
+  background: var(--bridge-card-bg);
+  border: 1px solid var(--bridge-border);
+  border-radius: var(--bridge-radius);
+  box-shadow: var(--bridge-shadow-card);
+  padding: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow var(--bridge-transition), transform var(--bridge-transition);
+}
+
+.team-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: var(--bridge-primary);
+  border-radius: 0 0 3px 0;
+}
+
+.team-card:hover {
+  box-shadow: var(--bridge-shadow-hover);
+  transform: translateY(-4px);
+}
+
+a.team-card-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+a.team-card-link:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--bridge-shadow-card), 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.team-photo {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--bridge-border);
+  flex-shrink: 0;
+}
+
+.team-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.team-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.2rem;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.team-card p {
+  color: var(--bridge-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.team-bio {
+  font-size: 0.88rem;
+  color: var(--bridge-text-muted);
+  line-height: 1.6;
+  margin-top: 0.5rem;
+  font-style: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.team-card-social {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--bridge-border);
+}
+
+.team-read-more {
+  display: inline-block;
+  margin-top: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--bridge-primary);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color var(--bridge-transition);
+}
+
+.team-read-more:hover {
+  color: var(--bridge-accent);
+}
+
+.team-linkedin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5rem;
+  color: var(--bridge-text-muted);
+  transition: color var(--bridge-transition);
+}
+
+.team-linkedin:hover {
+  color: #0a66c2;
+}
+
+/* === Team Section Themes === */
+.team-section {
+  padding: 4rem 1.5rem;
+}
+
+.team-section .section-title {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+  font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.team-section .section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* Theme 0 */
+.team-theme-0 { background: rgba(23, 24, 31, 1); }
+.team-theme-0 .section-title::after { background: var(--bridge-primary); }
+.team-theme-0 .team-card::before { background: var(--bridge-primary); }
+
+/* Theme 1 */
+.team-theme-1 { background: rgba(15, 16, 22, 1); }
+.team-theme-1 .section-title::after { background: var(--bridge-accent); }
+.team-theme-1 .team-card::before { background: var(--bridge-accent); }
+
+/* Theme 2 */
+.team-theme-2 { background: rgba(30, 31, 40, 1); }
+.team-theme-2 .section-title::after { background: #00aeef; }
+.team-theme-2 .team-card::before { background: #00aeef; }
+
+/* Theme 3 */
+.team-theme-3 { background: rgba(10, 11, 18, 1); }
+.team-theme-3 .section-title::after { background: #34d399; }
+.team-theme-3 .team-card::before { background: #34d399; }
+
+/* === Board Grid === */
+.board-grid {
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 1400px;
+}
+
+.board-photo-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.board-photo-name .team-photo {
+  margin-bottom: 0.5rem;
+}
+
+.board-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+.board-grid .team-card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.board-company-logo {
+  max-height: 64px;
+  max-width: 160px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.7;
+  align-self: center;
+  margin-bottom: 0.5rem;
+}
+
+/* === Team Modal === */
+.team-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--bridge-transition), visibility var(--bridge-transition);
+}
+
+.team-modal.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.team-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.team-modal-content {
+  position: relative;
+  background: #1a1b25;
+  border: 1px solid var(--bridge-border);
+  border-radius: var(--bridge-radius);
+  box-shadow: var(--bridge-shadow-elevated);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 2.5rem;
+  transform: translateY(16px);
+  transition: transform var(--bridge-transition);
+}
+
+.team-modal.open .team-modal-content {
+  transform: translateY(0);
+}
+
+.team-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--bridge-text-muted);
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background var(--bridge-transition), color var(--bridge-transition);
+}
+
+.team-modal-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.team-modal-header {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.team-modal-photo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.team-modal-header h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+}
+
+.team-modal-title {
+  color: var(--bridge-text-muted);
+  font-size: 0.95rem;
+}
+
+.team-modal-bio {
+  color: var(--bridge-text);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+/* === Blog Content Typography === */
+.blog-content {
+  max-width: 780px;
+  margin: 0 auto;
+  line-height: 1.8;
+  color: var(--bridge-text);
+}
+
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
+.blog-content h4 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.blog-content h1 { font-size: 2.2rem; }
+.blog-content h2 { font-size: 1.6rem; }
+.blog-content h3 { font-size: 1.3rem; }
+
+.blog-content p {
+  margin-bottom: 1.25rem;
+}
+
+.blog-content img {
+  border-radius: var(--bridge-radius);
+  margin: 1.5rem 0;
+}
+
+.blog-content blockquote {
+  border-left: 4px solid var(--bridge-primary);
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 var(--bridge-radius-sm) var(--bridge-radius-sm) 0;
+}
+
+.blog-content ul,
+.blog-content ol {
+  margin: 1rem 0 1.25rem 1.5rem;
+}
+
+.blog-content li {
+  margin-bottom: 0.5rem;
+}
+
+.blog-content pre {
+  background: rgba(0, 0, 0, 0.4);
+  color: #e0e0e0;
+  padding: 1.25rem;
+  border-radius: var(--bridge-radius-sm);
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.blog-content code {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.blog-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.blog-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.blog-header h1 {
+  font-size: 2.4rem;
+  margin-bottom: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.blog-header .blog-meta {
+  color: var(--bridge-text-muted);
+  font-size: 0.95rem;
+}
+
+/* === Loading / Error States === */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--bridge-text-muted);
+}
+
+.error-message {
+  text-align: center;
+  padding: 2rem;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  border-radius: var(--bridge-radius-sm);
+  margin: 1rem 0;
+}
+
+/* === Button Outline Variant === */
+.button--outline {
+  background: transparent !important;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.button--outline:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* === Card Overrides for Dark Theme === */
+.bridge-card {
+  background: var(--bridge-card-bg);
+  border: 1px solid var(--bridge-border);
+  border-radius: var(--bridge-radius);
+  box-shadow: var(--bridge-shadow-card);
+  overflow: hidden;
+  transition: box-shadow var(--bridge-transition), transform var(--bridge-transition);
+}
+
+.bridge-card:hover {
+  box-shadow: var(--bridge-shadow-hover);
+  transform: translateY(-4px);
+}
+
+.bridge-card-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.bridge-card-body {
+  padding: 1.75rem;
+}
+
+.bridge-card-body h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.bridge-card-body p {
+  color: var(--bridge-text-muted);
+  font-size: 0.93rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.bridge-card-meta {
+  font-size: 0.83rem;
+  color: var(--bridge-text-muted);
+}
+
+/* === Form Container === */
+.form-container {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* === Text Content (About-style pages) === */
+.text-content {
+  max-width: 780px;
+  margin: 0 auto;
+  font-size: 1.02rem;
+  color: var(--bridge-text);
+}
+
+.text-content p {
+  margin-bottom: 1.25rem;
+  line-height: 1.8;
+}
+
+.text-content h2 {
+  font-size: 1.6rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.text-content h3 {
+  font-size: 1.3rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.text-content ul,
+.text-content ol {
+  margin: 1rem 0 1.25rem 1.5rem;
+}
+
+.text-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* === Load More === */
+.load-more-wrap {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
+/* === Responsive === */
+@media (max-width: 1024px) {
+  .board-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .team-card {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .team-card-info {
+    text-align: center;
+  }
+
+  .board-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .blog-header h1 {
+    font-size: 1.8rem;
+  }
+}

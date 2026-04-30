@@ -37,7 +37,7 @@
     const link = values.link || '';
 
     const imgHtml = image
-      ? `<img class="card-img" src="${image}" alt="${name}">`
+      ? `<img class="bridge-card-img" src="${image}" alt="${name}">`
       : '';
 
     const linkOpen = link
@@ -47,9 +47,9 @@
 
     return `
       ${linkOpen}
-        <div class="card">
+        <div class="bridge-card">
           ${imgHtml}
-          <div class="card-body">
+          <div class="bridge-card-body">
             <h3>${name}</h3>
             <p>${description}</p>
           </div>

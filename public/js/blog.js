@@ -65,17 +65,17 @@
 
   function renderBlogCard(post) {
     const image = post.featuredImage
-      ? `<img class="card-img" src="${post.featuredImage}" alt="${post.name}">`
+      ? `<img class="bridge-card-img" src="${post.featuredImage}" alt="${post.name}">`
       : '';
     const summary = truncateText(stripHtml(post.postBody || post.postSummary || ''), 150);
     const date = formatDate(post.publishDate);
     return `
-      <a href="/blog-post.html?id=${post.id}" class="card" style="text-decoration:none;color:inherit;">
+      <a href="/blog-post.html?id=${post.id}" class="bridge-card" style="text-decoration:none;color:inherit;">
         ${image}
-        <div class="card-body">
+        <div class="bridge-card-body">
           <h3>${post.name}</h3>
           <p>${summary}</p>
-          <span class="card-meta">${date}</span>
+          <span class="bridge-card-meta">${date}</span>
         </div>
       </a>
     `;

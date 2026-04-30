@@ -4,23 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Products — CESMII</title>
-  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div id="site-header"></div>
+  <div class="body-wrapper hs-landing-page hs-page">
+    <div id="site-header"></div>
 
-  <div class="page-header">
-    <h1>Products</h1>
-    <p>Tools and platforms for Smart Manufacturing</p>
+    <main class="body-container-wrapper body-container">
+      <!-- Page Header -->
+      <div class="row-fluid-wrapper row-depth-1 dnd-section" style="background:rgba(1,1,1,1);padding:5rem 0;">
+        <div class="row-fluid">
+          <div class="span12 widget-span widget-type-custom_widget dnd-module">
+            <div class="content-wrapper">
+              <div class="heading" style="max-width:80%;margin:auto;text-align:center;">
+                <h1>Products</h1>
+                <div class="description" style="text-align:center;">Tools and platforms for Smart Manufacturing</div>
+                <div class="separator" style="background:var(--primary_color);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="row-fluid-wrapper row-depth-1 dnd-section" style="padding:4rem 0;">
+        <div class="row-fluid">
+          <div class="span12 widget-span widget-type-custom_widget dnd-module">
+            <div class="content-wrapper">
+              <div id="products-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2rem;">
+                <div class="loading">Loading products...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
   </div>
-
-  <section class="section">
-    <div id="products-grid" class="card-grid">
-      <div class="loading">Loading products...</div>
-    </div>
-  </section>
-
-  <div id="site-footer"></div>
 
   <script src="/js/app.js"></script>
   <script src="/js/hubspot.js"></script>

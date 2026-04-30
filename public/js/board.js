@@ -26,11 +26,17 @@
       const sorted = data.results.sort((a, b) => (a.renderOrder || 0) - (b.renderOrder || 0));
 
       container.innerHTML = `
-        <section class="section section-alt">
-          <div class="team-grid board-grid">
-            ${sorted.map(renderCard).join('')}
+        <div class="row-fluid-wrapper row-depth-1 dnd-section" style="background:rgba(23,24,31,1);padding:4rem 0;">
+          <div class="row-fluid">
+            <div class="span12 widget-span widget-type-custom_widget dnd-module">
+              <div class="content-wrapper">
+                <div class="team-grid board-grid">
+                  ${sorted.map(renderCard).join('')}
+                </div>
+              </div>
+            </div>
           </div>
-        </section>
+        </div>
       `;
     } catch (err) {
       console.error('Board load error:', err);

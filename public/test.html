@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Migration Test Page &ndash; CESMII</title>
   <meta name="description" content="">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme-bridge.css">
   <style>
     .mtp-dark {
       background: #010101;
@@ -121,29 +121,12 @@
 <body>
   <div id="site-header"></div>
 
-  <section class="mtp-dark">
-    <div class="mtp-intro">
-      <h2>This is my test page!!! - Chad</h2>
-<h2>Looking for Additional Customisation?</h2>
-<p>We can take care of your specific customisation to make the website look and function as per your custom requirements. You can even get those customisations work with this free theme.</p>
-<p>Get in touch with us and share your specific custom requirements.</p>
-<ul>
-<li>Inbound marketing strategies</li>
-<li>Improve sales conversions</li>
-<li>Inbound marketing strategies</li>
-<li>Improve sales conversions</li>
-<li>Inbound marketing strategies</li>
-<li>Q&amp;A session</li>
-</ul>
-      
-      <div class="mtp-form-wrap">
-        <div id="hubspot-form"></div>
-      </div>
-    </div>
-  </section>
+  <!-- Heading-section — no extractable content -->
 
-  <section style="background: #010101; padding: 3rem 1.5rem; text-align: center;">
-    <!-- Video Section — content from HubSpot module defaults -->
+  <section class="mtp-cta" style="background: #010101;">
+    <h2>I Just Upgraded to Business Elements Theme</h2>
+    <p>OK! Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    <a href="" class="btn btn-primary">Upgrade to DARK Theme!</a>
   </section>
 
   <section style="background: rgba(1, 1, 1, 1); padding: 2rem 1.5rem;">
@@ -158,8 +141,23 @@
     <div class="mtp-faq-grid">
       
       <div class="mtp-faq-item">
-        <h4><!-- FAQ question from module defaults --></h4>
-        <p><!-- FAQ answer from module defaults --></p>
+        <h4>Should I upgrade to HubSpot Business theme???</h4>
+        <p>No, DARK HubSpot theme is perfect for running all business websites.</p>
+      </div>
+
+      <div class="mtp-faq-item">
+        <h4>My Second FAQ</h4>
+        <p>Yes, DARK HubSpot theme is perfect for running all business websites.</p>
+      </div>
+
+      <div class="mtp-faq-item">
+        <h4>Should I upgrade to HubSpot Business theme?</h4>
+        <p>Yes, DARK HubSpot theme is perfect for running all business websites.</p>
+      </div>
+
+      <div class="mtp-faq-item">
+        <h4>Should I upgrade to HubSpot Business theme?</h4>
+        <p>Yes, DARK HubSpot theme is perfect for running all business websites.</p>
       </div>
 
       <div class="mtp-faq-item">
@@ -181,26 +179,5 @@
   <div id="site-footer"></div>
 
   <script src="/js/app.js"></script>
-  <script>
-    // Load HubSpot form
-    (async function() {
-      const cfg = await fetch('/api/config').then(r => r.json());
-      const formEl = document.getElementById('hubspot-form');
-      const fid = formEl && formEl.dataset.formId ? formEl.dataset.formId : '789f2e3d-c32b-41d7-bcaa-51a6bd8db34b';
-      const script = document.createElement('script');
-      script.src = '//js.hsforms.net/forms/embed/v2.js';
-      script.onload = function() {
-        if (window.hbspt) {
-          window.hbspt.forms.create({
-            region: cfg.region || 'na1',
-            portalId: cfg.portalId,
-            formId: fid,
-            target: '#hubspot-form'
-          });
-        }
-      };
-      document.head.appendChild(script);
-    })();
-  </script>
 </body>
 </html>
