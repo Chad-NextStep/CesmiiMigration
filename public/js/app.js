@@ -1,6 +1,6 @@
 /**
  * app.js — Shared header/footer injection, theme asset loading, getConfig(), utilities
- * Uses HubSpot "Dark Business Theme" markup patterns.
+ * Uses HubSpot Business Theme markup patterns.
  */
 
 // --- Theme CSS & JS assets (injected into <head> / end of <body>) ---
@@ -72,7 +72,6 @@ function injectHeader() {
     {
       label: 'About',
       children: [
-        { href: '/about.html', label: 'About CESMII' },
         { href: '/our-story.html', label: 'Our Story' },
         { href: '/team.html', label: 'Team' },
         { href: '/board-of-directors.html', label: 'Board of Directors' },
