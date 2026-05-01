@@ -107,6 +107,44 @@ HubSpot pages may include headers that prevent them from being loaded in a frame
 
 ---
 
+## Build and deploy (SFTP / FileZilla)
+
+### 1. Build the site
+
+```bash
+npm run build
+```
+
+This regenerates the `out/` folder from scratch. The entire process takes under a second. Always run a fresh build before deploying — never upload a stale `out/` from a previous session.
+
+### 2. Connect to the server in FileZilla
+
+- **Protocol:** SFTP
+- **Host:** your server hostname or IP
+- **Port:** 22
+- **Logon type:** your credentials or key file
+
+### 3. Upload the contents of `out/`
+
+On the **remote** side, navigate to `/var/www/cesmii/out/`.
+
+On the **local** side, open the `out/` folder inside this project.
+
+Select all files and folders inside `out/` and upload them, choosing **overwrite** when prompted. You are uploading the *contents* of `out/`, not the folder itself — the remote path should end in `out/`, not `out/out/`.
+
+> **Tip — use "Synchronized Browsing" in FileZilla:**
+> Site Manager → your connection → Advanced tab → check *Synchronized browsing* and set the local directory to this project's `out/` folder and the remote directory to `/var/www/cesmii/out/`. After that, navigating locally mirrors the remote side, making uploads easier.
+
+### 4. Verify
+
+Open `https://cesmii.org` in a browser and confirm the nav and pages load correctly. Because the files are static HTML, changes take effect immediately — there is no cache to clear on the server.
+
+### What gets deployed
+
+Only the `out/` folder is deployed. Everything else in this repo (source files, `node_modules`, `build.js`, etc.) stays local. The `out/` folder is excluded from git for this reason.
+
+---
+
 ## Roles and responsibilities
 
 | Area | Owner |
