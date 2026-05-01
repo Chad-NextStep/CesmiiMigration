@@ -1,0 +1,117 @@
+#!/usr/bin/env node
+/**
+ * build.js — Static site generator
+ *
+ * Reads gloomap.xml, generates a complete static site in out/.
+ * Each nav item gets out/{path}/index.html with the full shell.
+ * HubSpot content is loaded via iframe at visit time — no server needed at runtime.
+ *
+ * Usage:
+ *   node build.js          # build once
+ *   npm run build          # same
+ *   npm run dev            # build + serve locally
+ */
+
+const fs = require('fs');
+const path = require('path');
+const { loadNavFromGloomap } = require('./lib/gloomap-parser');
+const {
+  renderShell,
+  renderIframeContent,
+  renderStaticContent,
+  renderNotFound,
+  renderPlaceholder,
+} = require('./lib/shell-renderer');
+
+const PROJECT_ROOT = __dirname;
+const OUT_DIR = path.join(PROJECT_ROOT, 'out');
+const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public');
+const GLOOMAP_PATH = path.join(PROJECT_ROOT, 'gloomap.xml');
+
+// --- Helpers ---
+
+function write(relPath, html) {
+  const abs = path.join(OUT_DIR, relPath);
+  fs.mkdirSync(path.dirname(abs), { recursive: true });
+  fs.writeFileSync(abs, html, 'utf8');
+  console.log(`  ${relPath}`);
+}
+
+function contentFor(item) {
+  if (item.type === 'hubspot') return { html: renderIframeContent(item.url, item.label), type: 'hubspot' };
+  if (item.type === 'static')  return { html: renderStaticContent(item.url, PROJECT_ROOT), type: 'static' };
+  return { html: renderPlaceholder(item.label), type: 'placeholder' };
+}
+
+// Walk the full nav tree and generate a page for every node,
+// whether or not it has a URL yet (placeholder for unlinked items).
+function generatePages(items, allNavItems) {
+  for (const item of items) {
+    const { html, type } = contentFor(item);
+    write(
+      path.join(item.localPath, 'index.html'),
+      renderShell({
+        navItems: allNavItems,
+        title: item.label,
+        currentPath: item.localPath,
+        contentHtml: html,
+        contentType: type,
+      })
+    );
+    if (item.children.length > 0) {
+      generatePages(item.children, allNavItems);
+    }
+  }
+}
+
+// --- Build ---
+
+async function build() {
+  const start = Date.now();
+  console.log('Building...');
+
+  // Fresh output directory
+  fs.rmSync(OUT_DIR, { recursive: true, force: true });
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+
+  // Copy static assets (CSS, JS, images, etc.)
+  fs.cpSync(PUBLIC_DIR, OUT_DIR, { recursive: true });
+  console.log('  public/ → out/');
+
+  // Parse gloomap
+  const { homepageUrl, navItems } = await loadNavFromGloomap(GLOOMAP_PATH);
+  console.log(`  gloomap: ${navItems.length} top-level nav items`);
+
+  // Homepage (out/index.html)
+  const homepageContent = homepageUrl
+    ? homepageUrl.startsWith('/')
+      ? { html: renderStaticContent(homepageUrl, PROJECT_ROOT), type: 'static' }
+      : { html: renderIframeContent(homepageUrl, 'Home'), type: 'hubspot' }
+    : { html: renderPlaceholder('Homepage'), type: 'placeholder' };
+
+  write('index.html', renderShell({
+    navItems,
+    title: '',
+    currentPath: '/',
+    contentHtml: homepageContent.html,
+    contentType: homepageContent.type,
+  }));
+
+  // 404 page (out/404.html — nginx error_page directive points here)
+  write('404.html', renderShell({
+    navItems,
+    title: 'Page Not Found',
+    currentPath: '',
+    contentHtml: renderNotFound(),
+  }));
+
+  // One page per nav item
+  generatePages(navItems, navItems);
+
+  console.log(`\nDone in ${Date.now() - start}ms → out/`);
+}
+
+build().catch((err) => {
+  console.error('\nBuild failed:', err.message);
+  process.exit(1);
+});
