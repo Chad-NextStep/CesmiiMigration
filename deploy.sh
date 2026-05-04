@@ -35,12 +35,16 @@ git pull --quiet
 
 AFTER=$(git rev-parse HEAD)
 
-if [ "$BEFORE" = "$AFTER" ]; then
+if [ "$BEFORE" = "$AFTER" ] && [ -d "$DIR/out" ]; then
     echo "$STAMP Already up to date."
     exit 0
 fi
 
-echo "$STAMP Changes pulled (${BEFORE:0:7} → ${AFTER:0:7})."
+if [ "$BEFORE" = "$AFTER" ]; then
+    echo "$STAMP No new commits, but out/ is missing — building."
+else
+    echo "$STAMP Changes pulled (${BEFORE:0:7} → ${AFTER:0:7})."
+fi
 
 # Re-install dependencies if package-lock.json changed.
 if git diff --name-only "$BEFORE" "$AFTER" | grep -q 'package-lock\.json'; then
