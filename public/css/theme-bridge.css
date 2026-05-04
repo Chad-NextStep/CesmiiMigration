@@ -294,6 +294,16 @@ ul, ol {
   color: var(--color-accent);
 }
 
+.dropdown-menu .nav-label {
+  display: block;
+  padding: 0.55rem 1.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: default;
+}
+
 /* === Mobile nav toggle === */
 
 .nav-toggle {
