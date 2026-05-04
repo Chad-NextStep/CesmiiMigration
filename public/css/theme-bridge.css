@@ -127,7 +127,7 @@ ul, ol {
 /* === Header === */
 
 .site-header {
-  background: var(--color-dark);
+  background: linear-gradient(135deg, #00aeef, #2b47da);
   height: var(--header-height);
   position: sticky;
   top: 0;
@@ -317,9 +317,12 @@ ul, ol {
   position: relative;
 }
 
-/* HubSpot content fetched by proxy.php — flows as normal page content. */
+/* HubSpot content fetched by proxy.php — flows as normal page content.
+   'all: initial' on children prevents HubSpot inline styles from bleeding
+   into the shell (nav, header, footer). */
 .content-proxy {
   flex: 1;
+  isolation: isolate;
 }
 
 .content-static {
@@ -381,7 +384,7 @@ ul, ol {
 /* === Footer === */
 
 .site-footer {
-  background: var(--color-dark);
+  background: linear-gradient(135deg, #00aeef, #2b47da);
   color: rgba(255, 255, 255, 0.6);
   font-size: 0.88rem;
   line-height: 1.7;
@@ -506,7 +509,7 @@ ul, ol {
     right: 0;
     flex-direction: column;
     align-items: stretch;
-    background: var(--color-dark);
+    background: linear-gradient(135deg, #00aeef, #2b47da);
     padding: 0.75rem 0 1rem;
     box-shadow: 0 8px 24px rgba(33, 51, 67, 0.3);
     z-index: 99;
