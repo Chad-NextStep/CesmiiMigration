@@ -70,14 +70,26 @@ function _hs_curl(string $url): ?string {
 
 /**
  * Strip HubSpot chrome and return the page content as an HTML fragment.
- * Prefers <main>; falls back to <body> after removing header/footer/nav.
+ * Keeps <style> and stylesheet <link> tags so content retains its styling.
+ * Strips scripts, HubSpot header/footer/nav, iframes, and non-stylesheet links.
+ * Prefers <main>; falls back to <body>.
  */
 function _hs_extract(string $html, string $source_url): string {
     $dom = new DOMDocument();
     @$dom->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
     $xpath = new DOMXPath($dom);
 
-    foreach (['script', 'style', 'link', 'noscript', 'header', 'footer', 'nav', 'iframe'] as $tag) {
+    // Collect stylesheet <link> and <style> tags before stripping anything.
+    $styles = '';
+    foreach (iterator_to_array($xpath->query('//link[@rel="stylesheet"]')) as $node) {
+        $styles .= $dom->saveHTML($node);
+    }
+    foreach (iterator_to_array($xpath->query('//style')) as $node) {
+        $styles .= $dom->saveHTML($node);
+    }
+
+    // Strip chrome and non-content elements (but NOT style/stylesheet links).
+    foreach (['script', 'noscript', 'header', 'footer', 'nav', 'iframe', 'link'] as $tag) {
         foreach (iterator_to_array($xpath->query("//{$tag}")) as $node) {
             $node->parentNode?->removeChild($node);
         }
@@ -95,7 +107,9 @@ function _hs_extract(string $html, string $source_url): string {
         $fragment .= $dom->saveHTML($child);
     }
 
-    return _hs_rewrite_urls(trim($fragment), $source_url);
+    // Prepend stylesheets so content renders with HubSpot's original styling.
+    $content = _hs_rewrite_urls(trim($styles . $fragment), $source_url);
+    return $content;
 }
 
 /**
