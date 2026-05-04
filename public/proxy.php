@@ -70,7 +70,7 @@ function _hs_curl(string $url): ?string {
 
 /**
  * Strip HubSpot chrome and return the page content as an HTML fragment.
- * Keeps <style> and stylesheet <link> tags so content retains its styling.
+ * Keeps styles scoped to .content-proxy so they don't bleed into the shell.
  * Strips scripts, HubSpot header/footer/nav, iframes, and non-stylesheet links.
  * Prefers <main>; falls back to <body>.
  */
@@ -78,18 +78,24 @@ function _hs_extract(string $html, string $source_url): string {
     $dom = new DOMDocument();
     @$dom->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
     $xpath = new DOMXPath($dom);
+    $parts  = parse_url($source_url);
+    $origin = $parts['scheme'] . '://' . $parts['host'];
 
-    // Collect stylesheet <link> and <style> tags before stripping anything.
-    $styles = '';
+    // Collect CSS: fetch external stylesheets inline, collect <style> contents.
+    $css_parts = [];
     foreach (iterator_to_array($xpath->query('//link[@rel="stylesheet"]')) as $node) {
-        $styles .= $dom->saveHTML($node);
+        $href = $node->getAttribute('href');
+        if (!$href) continue;
+        if (str_starts_with($href, '/')) $href = $origin . $href;
+        $css = _hs_curl($href);
+        if ($css !== null) $css_parts[] = $css;
     }
     foreach (iterator_to_array($xpath->query('//style')) as $node) {
-        $styles .= $dom->saveHTML($node);
+        $css_parts[] = $node->textContent;
     }
 
-    // Strip chrome and non-content elements (but NOT style/stylesheet links).
-    foreach (['script', 'noscript', 'header', 'footer', 'nav', 'iframe', 'link'] as $tag) {
+    // Strip all non-content elements.
+    foreach (['script', 'style', 'link', 'noscript', 'header', 'footer', 'nav', 'iframe'] as $tag) {
         foreach (iterator_to_array($xpath->query("//{$tag}")) as $node) {
             $node->parentNode?->removeChild($node);
         }
@@ -107,9 +113,61 @@ function _hs_extract(string $html, string $source_url): string {
         $fragment .= $dom->saveHTML($child);
     }
 
-    // Prepend stylesheets so content renders with HubSpot's original styling.
-    $content = _hs_rewrite_urls(trim($styles . $fragment), $source_url);
+    // Scope all HubSpot CSS inside .content-proxy so it can't affect the shell.
+    $scoped_css = '';
+    if ($css_parts) {
+        $all_css = implode("\n", $css_parts);
+        // Rewrite root-relative URLs in CSS (url(/...) references)
+        $all_css = preg_replace_callback(
+            '/url\(\s*["\']?(\/[^)"\']+)["\']?\s*\)/i',
+            fn($m) => 'url(' . $origin . $m[1] . ')',
+            $all_css
+        );
+        $scoped_css = '<style>' . _hs_scope_css($all_css) . '</style>';
+    }
+
+    $content = $scoped_css . _hs_rewrite_urls(trim($fragment), $source_url);
     return $content;
+}
+
+/**
+ * Scope CSS rules by prepending .content-proxy to each selector.
+ * Handles @media blocks, @font-face, @keyframes, and regular rules.
+ */
+function _hs_scope_css(string $css): string {
+    // Remove @charset and @import — they only work at the top of a stylesheet
+    $css = preg_replace('/@charset\s+[^;]+;/i', '', $css);
+    $css = preg_replace('/@import\s+[^;]+;/i', '', $css);
+
+    // Process the CSS: scope selectors inside .content-proxy
+    return preg_replace_callback(
+        '/([^{}@]+)\{/',
+        function ($m) {
+            $selectors = $m[1];
+            // Don't scope @-rules (media, keyframes, font-face, supports, layer)
+            if (preg_match('/^\s*@/', $selectors)) return $m[0];
+            // Don't scope selectors inside @keyframes (from, to, percentages)
+            if (preg_match('/^\s*(\d+%|from|to)\s*$/i', trim($selectors))) return $m[0];
+
+            // Split comma-separated selectors and prefix each
+            $parts = explode(',', $selectors);
+            $scoped = array_map(function ($sel) {
+                $sel = trim($sel);
+                if ($sel === '') return $sel;
+                // body/html selectors → .content-proxy
+                if (preg_match('/^(body|html)(\s|$|\.|\[|:)/i', $sel)) {
+                    $sel = preg_replace('/^(body|html)/i', '.content-proxy', $sel);
+                } elseif (preg_match('/^(body|html)$/i', $sel)) {
+                    $sel = '.content-proxy';
+                } else {
+                    $sel = '.content-proxy ' . $sel;
+                }
+                return $sel;
+            }, $parts);
+            return implode(', ', $scoped) . '{';
+        },
+        $css
+    );
 }
 
 /**
