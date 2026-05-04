@@ -46,9 +46,9 @@ else
     echo "$STAMP Changes pulled (${BEFORE:0:7} → ${AFTER:0:7})."
 fi
 
-# Re-install dependencies if package-lock.json changed.
-if git diff --name-only "$BEFORE" "$AFTER" | grep -q 'package-lock\.json'; then
-    echo "$STAMP package-lock.json changed — running npm install..."
+# Install dependencies if node_modules is missing or package-lock.json changed.
+if [ ! -d "$DIR/node_modules" ] || git diff --name-only "$BEFORE" "$AFTER" | grep -q 'package-lock\.json'; then
+    echo "$STAMP Running npm install..."
     npm install --quiet
 fi
 
