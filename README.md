@@ -10,7 +10,7 @@ This repository controls the **navigation shell** of cesmii.org — the top bar,
 
 When a visitor loads a page on cesmii.org, they get:
 - Our chrome (nav, header, footer) — rendered from this repo
-- The page content — loaded from HubSpot inside an embedded frame
+- The page content — fetched from HubSpot and injected directly into the shell
 
 This separation means the content team keeps full control over page layouts, design, and campaigns in HubSpot, while our server owns the navigation and brand chrome.
 
@@ -31,10 +31,10 @@ Two URL types are supported:
 
 | Prefix | Meaning | Example |
 |--------|---------|---------|
-| `#https://...` | HubSpot page — loaded in an embedded frame | `#https://43818189.hs-sites.com/our-story` |
-| `#/path` | Local static file in this repo | `#/pages/home.html` |
+| `#https://...` | HubSpot page — fetched server-side and injected into the shell | `#https://43818189.hs-sites.com/our-story` |
+| `#/path` | Local static file in this repo | `#/index.html` |
 
-If a box has no URL line, the nav item is still generated as a navigable page, but it shows a "coming soon" placeholder. This means you can build out the navigation structure ahead of the content.
+If a box has no URL line, it appears in the navigation as a label but no page is generated for it. This lets you build out the navigation structure ahead of the content — placeholder items show in dropdown menus in a dimmed style.
 
 ---
 
@@ -42,28 +42,27 @@ If a box has no URL line, the nav item is still generated as a navigable page, b
 
 1. A non-technical person edits the site map in Gloomaps, adding or rearranging boxes and `#url` lines
 2. They export the XML and commit `gloomap.xml` to this repo
-3. A developer runs `npm run build` — this generates the complete site into an `out/` folder in about 40ms
-4. The `out/` folder is deployed to the nginx web server
+3. The web server picks up the change automatically — a cron job runs `deploy.sh` every 10 minutes, pulls from git, and rebuilds if anything changed
 
-There is no Node.js server running in production. The build produces plain HTML files that nginx serves statically. This is fast, simple, and cheap to host.
+There is no Node.js server running in production. The build produces HTML and PHP files that nginx serves directly. This is fast, simple, and cheap to host.
 
 ---
 
 ## Content: HubSpot vs. static pages
 
-**HubSpot pages** are the default. The content team creates and manages these in HubSpot's page editor. Our server loads them inside an embedded frame. The content team is responsible for ensuring HubSpot page templates do not render HubSpot's own header/footer (since we supply those).
+**HubSpot pages** are the default. The content team creates and manages these in HubSpot's page editor. When a visitor loads the page, our server fetches the HubSpot content, strips HubSpot's own chrome, and injects the body into our shell. The content team is responsible for ensuring HubSpot page templates do not render HubSpot's own header/footer (since we supply those).
 
-**Static pages** are HTML files stored in `public/pages/` in this repo. They are injected directly into the page shell at build time — no frame involved. Static pages are appropriate for content that doesn't need HubSpot's CMS tooling, such as a Privacy Statement, a custom landing page, or the homepage (which currently uses a static file).
+**Static pages** are HTML files stored in `public/` in this repo. They are injected directly into the page shell at build time. Static pages are appropriate for content that doesn't need HubSpot's CMS tooling, such as a Privacy Statement, a custom landing page, or the homepage.
 
 ---
 
 ## The homepage
 
-The homepage is currently a static page (`public/pages/home.html`). It is referenced in `gloomap.xml` on the root box:
+The homepage is currently a static page (`public/index.html`). It is referenced in `gloomap.xml` on the root box:
 
 ```
 cesmii.org
-#/pages/home.html
+#/index.html
 ```
 
 ---
@@ -74,13 +73,14 @@ cesmii.org
 |------|---------|
 | `gloomap.xml` | Site map and nav source of truth — edit this to change navigation |
 | `build.js` | Build script — reads gloomap, generates `out/` |
+| `public/proxy.php` | Server-side HubSpot content proxy (included by generated PHP pages) |
 | `public/css/theme-bridge.css` | All styles for the nav shell (header, footer, chrome) |
 | `public/js/app.js` | Interactivity for the shell (mobile nav, dropdowns, scroll effects) |
-| `public/pages/` | Static page fragments (homepage, future privacy page, etc.) |
 | `public/images/` | Logo and shared image assets |
-| `nginx.conf` | Ready-to-use nginx server configuration |
+| `nginx-example.config` | Reference nginx config for production deployment |
+| `deploy.sh` | Cron-driven deploy script — git pull + conditional rebuild |
 | `TODO.md` | Deferred tasks and known pre-launch items |
-| `out/` | Generated site — what gets deployed (not committed to git) |
+| `out/` | Generated site — served by nginx (not committed to git) |
 
 ---
 
@@ -97,51 +97,34 @@ Note: the site uses absolute asset paths (`/css/...`, `/js/...`) so it must be s
 
 ## Known limitations and deferred work
 
-See **`TODO.md`** for the full list. The two most important items before production launch:
-
-**1. Iframe → proxy rewrite (SEO)**
-Content loaded in an embedded frame is invisible to search engines. Before launch, the HubSpot content loader should be replaced with a server-side proxy that fetches the HubSpot page, strips its chrome, and injects the body directly into our shell. The server runs nginx + PHP 7, so this can be a PHP script — no new runtime dependencies. The swap point in the code is `renderIframeContent()` in `lib/shell-renderer.js`.
-
-**2. X-Frame-Options on HubSpot pages**
-HubSpot pages may include headers that prevent them from being loaded in a frame from another domain. The HubSpot template used for iframed pages must be confirmed to not set these headers. If they do, the proxy approach becomes an immediate requirement.
+See **`TODO.md`** for the full list.
 
 ---
 
-## Build and deploy (SFTP / FileZilla)
+## Build and deploy
 
-### 1. Build the site
+### Local development
 
 ```bash
-npm run build
+npm install       # first time only
+npm run dev       # build + start local server at http://localhost:3000
 ```
 
-This regenerates the `out/` folder from scratch. The entire process takes under a second. Always run a fresh build before deploying — never upload a stale `out/` from a previous session.
+### Production deployment
 
-### 2. Connect to the server in FileZilla
+The server runs `deploy.sh` via cron every 10 minutes. Committing to `main` is all that's needed — the server picks it up automatically.
 
-- **Protocol:** SFTP
-- **Host:** your server hostname or IP
-- **Port:** 22
-- **Logon type:** your credentials or key file
+To trigger an immediate deploy, SSH into the server and run:
 
-### 3. Upload the contents of `out/`
+```bash
+/var/www/cesmii/deploy.sh
+```
 
-On the **remote** side, navigate to `/var/www/cesmii/out/`.
+Logs are at `/var/log/cesmii-deploy.log`.
 
-On the **local** side, open the `out/` folder inside this project.
+### What lives on the server
 
-Select all files and folders inside `out/` and upload them, choosing **overwrite** when prompted. You are uploading the *contents* of `out/`, not the folder itself — the remote path should end in `out/`, not `out/out/`.
-
-> **Tip — use "Synchronized Browsing" in FileZilla:**
-> Site Manager → your connection → Advanced tab → check *Synchronized browsing* and set the local directory to this project's `out/` folder and the remote directory to `/var/www/cesmii/out/`. After that, navigating locally mirrors the remote side, making uploads easier.
-
-### 4. Verify
-
-Open `https://cesmii.org` in a browser and confirm the nav and pages load correctly. Because the files are static HTML, changes take effect immediately — there is no cache to clear on the server.
-
-### What gets deployed
-
-Only the `out/` folder is deployed. Everything else in this repo (source files, `node_modules`, `build.js`, etc.) stays local. The `out/` folder is excluded from git for this reason.
+The full repo is checked out at `/var/www/cesmii/`. nginx serves the `out/` subdirectory as the document root. `deploy.sh` runs `build.js` in place — there is no separate upload step.
 
 ---
 
