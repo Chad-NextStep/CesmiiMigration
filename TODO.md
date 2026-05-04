@@ -2,40 +2,20 @@
 
 ## Pre-Launch
 
-### Replace iframe with proxy/rewrite
-**Priority: High — required before production launch**
+### Tune HubSpot content extraction
+**Priority: Medium — verify extraction quality on each linked page**
 
-The current architecture loads HubSpot page content in an `<iframe>`. This is a working first
-pass, but has known limitations:
+`public/proxy.php` strips `<header>`, `<footer>`, `<nav>`, all scripts, and styles, then
+extracts `<main>` (falling back to `<body>`). This works for standard HubSpot templates but
+may need adjustment once real pages are loaded:
 
-- **SEO**: Search engines cannot index content inside iframes. HubSpot page content will not
-  appear in search results while the iframe approach is in use.
-- **Scroll behavior**: Content scrolls inside the frame, not the outer page. This can feel
-  slightly off on mobile or for very long pages.
-- **URL bar**: The browser address bar shows our domain (good), but the iframe src is the
-  HubSpot URL, which may be visible in devtools or cause confusion.
-
-**Resolution**: Replace the iframe with a server-side proxy that fetches the HubSpot page,
-strips HubSpot's own nav/footer chrome, and injects the content body into our shell. See
-`lib/shell-renderer.js` for the `renderIframeContent` function — that is the swap point.
-
-**Implementation path with PHP**: Because the server runs nginx + PHP 7, the proxy can be a
-PHP script rather than a Node.js runtime. A PHP file would `file_get_contents` or `curl` the
-HubSpot URL, strip the chrome with a DOM parser or regex, and return the body fragment.
-`build.js` would then generate pages that `include` or `fetch` that PHP endpoint rather than
-pointing to an iframe `src`. No new runtime dependencies needed.
-
----
-
-### Verify X-Frame-Options / CSP on HubSpot pages
-**Priority: High — required for iframe approach to work at all**
-
-HubSpot pages may include `X-Frame-Options: SAMEORIGIN` or a `Content-Security-Policy:
-frame-ancestors` header that prevents them from being loaded in an iframe from our domain.
-
-**Resolution**: Confirm that the HubSpot template used for iframed pages does NOT set these
-headers. This is a HubSpot template configuration change, not a code change in this repo.
-If pages refuse to iframe, the proxy approach above becomes an immediate requirement.
+- If HubSpot doesn't use a semantic `<main>`, the body fallback may include unwanted wrapper
+  divs. Inspect the rendered output and add more specific element removal in `_hs_extract()`
+  if needed.
+- HubSpot `srcset` attributes on `<img>` are not yet rewritten to absolute URLs — only `src`
+  and `href` are handled. Add a `srcset` rewrite pass if responsive images break.
+- The 1-hour disk cache (`HS_CACHE_TTL`) can be adjusted or cleared by deleting
+  `/tmp/cesmii_*.html` on the server.
 
 ---
 

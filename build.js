@@ -17,7 +17,7 @@ const path = require('path');
 const { loadNavFromGloomap } = require('./lib/gloomap-parser');
 const {
   renderShell,
-  renderIframeContent,
+  renderProxyContent,
   renderStaticContent,
   renderNotFound,
   renderPlaceholder,
@@ -38,26 +38,29 @@ function write(relPath, html) {
 }
 
 function contentFor(item) {
-  if (item.type === 'hubspot') return { html: renderIframeContent(item.url, item.label), type: 'hubspot' };
+  if (item.type === 'hubspot') return { html: renderProxyContent(item.url), type: 'hubspot' };
   if (item.type === 'static')  return { html: renderStaticContent(item.url, PROJECT_ROOT), type: 'static' };
   return { html: renderPlaceholder(item.label), type: 'placeholder' };
 }
 
-// Walk the full nav tree and generate a page for every node,
-// whether or not it has a URL yet (placeholder for unlinked items).
+// Walk the nav tree and generate a page only for items that have a URL.
+// Items without a URL are nav structure only and produce no output file.
 function generatePages(items, allNavItems) {
   for (const item of items) {
-    const { html, type } = contentFor(item);
-    write(
-      path.join(item.localPath, 'index.html'),
-      renderShell({
-        navItems: allNavItems,
-        title: item.label,
-        currentPath: item.localPath,
-        contentHtml: html,
-        contentType: type,
-      })
-    );
+    if (item.url) {
+      const { html, type } = contentFor(item);
+      const filename = type === 'hubspot' ? 'index.php' : 'index.html';
+      write(
+        path.join(item.localPath, filename),
+        renderShell({
+          navItems: allNavItems,
+          title: item.label,
+          currentPath: item.localPath,
+          contentHtml: html,
+          contentType: type,
+        })
+      );
+    }
     if (item.children.length > 0) {
       generatePages(item.children, allNavItems);
     }
@@ -86,10 +89,11 @@ async function build() {
   const homepageContent = homepageUrl
     ? homepageUrl.startsWith('/')
       ? { html: renderStaticContent(homepageUrl, PROJECT_ROOT), type: 'static' }
-      : { html: renderIframeContent(homepageUrl, 'Home'), type: 'hubspot' }
+      : { html: renderProxyContent(homepageUrl), type: 'hubspot' }
     : { html: renderPlaceholder('Homepage'), type: 'placeholder' };
 
-  write('index.html', renderShell({
+  const homeFile = homepageContent.type === 'hubspot' ? 'index.php' : 'index.html';
+  write(homeFile, renderShell({
     navItems,
     title: '',
     currentPath: '/',

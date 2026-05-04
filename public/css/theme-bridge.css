@@ -2,9 +2,9 @@
  * theme-bridge.css
  *
  * Styles for the site chrome only: top-bar, header, navigation (desktop + mobile),
- * footer, and the content area that holds the iframe or static page content.
+ * footer, and the content area that holds proxied or static page content.
  *
- * HubSpot page content is loaded inside an iframe and manages its own styles.
+ * HubSpot page content is fetched server-side and injected into .content-proxy.
  * Static page content is injected into .content-static and can add its own styles.
  */
 
@@ -318,8 +318,7 @@ ul, ol {
 }
 
 /* === Content area ===
-   flex: 1 makes it fill the remaining viewport space between header and footer.
-   The iframe uses height: 100% to fill this container. */
+   flex: 1 makes it fill the remaining viewport space between header and footer. */
 
 .site-content {
   flex: 1;
@@ -329,28 +328,9 @@ ul, ol {
   position: relative;
 }
 
-.content-frame {
+/* HubSpot content fetched by proxy.php — flows as normal page content. */
+.content-proxy {
   flex: 1;
-  width: 100%;
-  border: none;
-  display: block;
-  min-height: calc(100vh - var(--chrome-height) - 260px);
-}
-
-/* Viewport-lock for iframe pages: outer shell is fixed to 100vh, iframe scrolls internally.
-   Applied via has-iframe class on <body> when content type is hubspot. */
-body.has-iframe {
-  overflow: hidden;
-  height: 100vh;
-}
-
-body.has-iframe .site-content {
-  overflow: hidden;
-}
-
-body.has-iframe .content-frame {
-  height: 100%;
-  min-height: 0;
 }
 
 .content-static {
