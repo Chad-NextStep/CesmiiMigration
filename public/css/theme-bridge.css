@@ -423,9 +423,9 @@ html, body {
 
 .site-footer {
   background: linear-gradient(135deg, #00aeef, #2b47da);
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.88rem;
-  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  line-height: 1.6;
   flex-shrink: 0;
 }
 
@@ -433,22 +433,28 @@ html, body {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 1.75rem 1.5rem 1.25rem;
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .footer-logo-img {
   height: 38px;
   width: auto;
   display: block;
-  margin-bottom: 0.6rem;
 }
 
 .footer-tagline {
   color: rgba(255, 255, 255, 0.45);
-  font-size: 0.82rem;
-  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  margin: 0;
 }
 
 .footer-social {
@@ -468,18 +474,24 @@ html, body {
   color: var(--color-accent);
 }
 
+.footer-social a svg {
+  width: 16px;
+  height: 16px;
+}
+
 .footer-col h4 {
   font-family: var(--font-heading);
   color: var(--color-white);
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.3px;
-  margin-bottom: 0.875rem;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
   text-transform: uppercase;
 }
 
-.footer-col ul li {
-  margin-bottom: 0.4rem;
+.footer-col p {
+  margin: 0 0 0.25rem;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .footer-col a {
@@ -491,30 +503,17 @@ html, body {
   color: var(--color-accent);
 }
 
-.footer-col p {
-  margin-bottom: 0.3rem;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.footer-col p a {
-  color: rgba(255, 255, 255, 0.5);
-}
-
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.07);
   text-align: center;
-  padding: 0.65rem 1.5rem;
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.3);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 /* === Responsive === */
 
 @media (max-width: 1024px) {
-  .footer-inner {
-    grid-template-columns: 1fr 1fr;
-  }
-
   .nav-links > li > a,
   .nav-dropdown-btn {
     padding: 0.45rem 0.55rem;
@@ -595,8 +594,13 @@ html, body {
   }
 
   .footer-inner {
-    grid-template-columns: 1fr;
-    gap: 1.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  .footer-social {
+    justify-content: flex-start;
   }
 }
 
