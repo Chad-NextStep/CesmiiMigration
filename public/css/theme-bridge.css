@@ -96,6 +96,14 @@ html, body {
   height: auto;
 }
 
+/* HubSpot pages use AOS (Animate On Scroll) which hides elements until JS
+   triggers them. Since we strip scripts, force all AOS elements visible. */
+.content-proxy [data-aos] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
 /* === Shell layout ===
    Full-viewport flex column so the iframe fills exactly the space
    between chrome top and footer bottom. */
