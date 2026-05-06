@@ -141,9 +141,10 @@ function _hs_scope_css(string $css): string {
 
     // Process the CSS: scope selectors inside .content-proxy
     return preg_replace_callback(
-        '/([^{}@]+)\{/',
+        '/@?[^{}]+\{/',
         function ($m) {
-            $selectors = $m[1];
+            $selectors = $m[0];
+            $selectors = substr($selectors, 0, -1); // remove trailing {
             // Don't scope @-rules (media, keyframes, font-face, supports, layer)
             if (preg_match('/^\s*@/', $selectors)) return $m[0];
             // Don't scope selectors inside @keyframes (from, to, percentages)
