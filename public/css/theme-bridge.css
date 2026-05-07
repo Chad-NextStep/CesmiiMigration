@@ -142,10 +142,10 @@ html, body {
 }
 
 .top-bar-btn {
-  background: var(--color-accent);
+  background: #00aeef;
   color: var(--color-white);
   padding: 0.25rem 0.875rem;
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   font-weight: 700;
   font-size: 0.72rem;
   text-transform: uppercase;
@@ -153,15 +153,21 @@ html, body {
   transition: background var(--transition);
 }
 
+.top-bar-btn,
+.top-bar-btn:visited,
+.top-bar-btn:hover,
+.top-bar-btn:active {
+  color: #ffffff !important;
+}
+
 .top-bar-btn:hover {
-  background: var(--color-accent-hover);
-  color: var(--color-white);
+  background: #0099d4;
 }
 
 .top-bar-btn-secondary {
   background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.4);
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-white);
 }
 
 .top-bar-btn-secondary:hover {
