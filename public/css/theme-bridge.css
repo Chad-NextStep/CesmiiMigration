@@ -317,12 +317,12 @@ html, body {
 }
 
 .dropdown-menu a:hover {
-  color: var(--color-accent);
+  color: #999999;
   background: rgba(255, 255, 255, 0.1);
 }
 
 .dropdown-menu a.active {
-  color: var(--color-accent);
+  color: var(--color-white);
 }
 
 .dropdown-menu .nav-label {
