@@ -135,7 +135,8 @@ function _hs_extract(string $html, string $source_url): string {
  * Handles @media blocks, @font-face, @keyframes, and regular rules.
  */
 function _hs_scope_css(string $css): string {
-    // Remove @charset and @import — they only work at the top of a stylesheet
+    // Remove comments, @charset, and @import
+    $css = preg_replace('/\/\*.*?\*\//s', '', $css);
     $css = preg_replace('/@charset\s+[^;]+;/i', '', $css);
     $css = preg_replace('/@import\s+[^;]+;/i', '', $css);
 
