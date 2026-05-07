@@ -290,7 +290,7 @@ html, body {
   left: 0;
   min-width: 210px;
   background: #000000;
-  border-radius: var(--radius);
+  border-radius: 0;
   box-shadow: var(--shadow-nav);
   padding: 0.4rem 0;
   opacity: 0;
