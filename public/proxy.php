@@ -75,6 +75,12 @@ function _hs_curl(string $url): ?string {
  * Prefers <main>; falls back to <body>.
  */
 function _hs_extract(string $html, string $source_url): string {
+    // Cache page title as a side-effect (read back by hs_fetch_title).
+    @file_put_contents(
+        sys_get_temp_dir() . '/cesmii_' . md5($source_url) . '_title.txt',
+        _hs_extract_title($html)
+    );
+
     $dom = new DOMDocument();
     @$dom->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
     $xpath = new DOMXPath($dom);
@@ -211,4 +217,28 @@ function _hs_rewrite_urls(string $html, string $source_url): string {
 
 function _hs_error(string $msg): string {
     return '<div class="content-error">' . htmlspecialchars($msg, ENT_QUOTES) . '</div>';
+}
+
+function _hs_extract_title(string $html): string {
+    if (preg_match('/<title[^>]*>(.*?)<\/title>/is', $html, $m)) {
+        return html_entity_decode(trim(strip_tags($m[1])), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+    return '';
+}
+
+/**
+ * Return the page title for a HubSpot URL.
+ * Reads from a sidecar cache written by hs_fetch(). Triggers a fresh fetch
+ * (and sidecar write) if the cache is absent or stale.
+ */
+function hs_fetch_title(string $url): string {
+    if (!str_starts_with($url, 'https://' . HS_ALLOWED_HOST . '/')) return '';
+    $title_file = sys_get_temp_dir() . '/cesmii_' . md5($url) . '_title.txt';
+    if (is_file($title_file) && (time() - filemtime($title_file)) < HS_CACHE_TTL) {
+        $t = file_get_contents($title_file);
+        if ($t !== false) return $t;
+    }
+    hs_fetch($url);
+    $t = is_file($title_file) ? file_get_contents($title_file) : '';
+    return ($t !== false) ? $t : '';
 }

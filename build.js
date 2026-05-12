@@ -21,7 +21,15 @@ const {
   renderStaticContent,
   renderNotFound,
   renderPlaceholder,
+  renderDynamicHandler,
 } = require('./lib/shell-renderer');
+
+// Database-driven sections with no individual gloomap entries.
+// Each entry maps a local path prefix to its HubSpot base URL.
+// nginx routes unmatched paths to out/dynamic.php, which handles these.
+const DYNAMIC_SECTIONS = [
+  { prefix: '/bio', hsBase: 'https://43818189.hs-sites.com/bio' },
+];
 
 const PROJECT_ROOT = __dirname;
 const OUT_DIR = path.join(PROJECT_ROOT, 'out');
@@ -101,7 +109,10 @@ async function build() {
     contentType: homepageContent.type,
   }));
 
-  // 404 page (out/404.html — nginx error_page directive points here)
+  // Dynamic section handler (out/dynamic.php — nginx @dynamic fallback)
+  write('dynamic.php', renderDynamicHandler(navItems, DYNAMIC_SECTIONS));
+
+  // 404 page (out/404.html — nginx error_page directive and dynamic.php fallback)
   write('404.html', renderShell({
     navItems,
     title: 'Page Not Found',
