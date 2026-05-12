@@ -10,15 +10,6 @@
       <propb>#000000</propb>
       <member>
         <box>
-          <text>Bio
-#http://43818189.hs-sites.com/bio</text>
-          <propa>#ffffff</propa>
-          <propb>#000000</propb>
-          <propc>Lato</propc>
-          <propd>100%</propd>
-          <member/>
-        </box>
-        <box>
           <text>About</text>
           <propa>#7dbfe3</propa>
           <propb>#000000</propb>
