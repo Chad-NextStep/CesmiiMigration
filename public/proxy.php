@@ -173,18 +173,40 @@ function _hs_scope_css(string $css): string {
 }
 
 /**
- * Rewrite root-relative src/href attributes to absolute URLs so images and
- * links that point to paths on the HubSpot domain resolve correctly.
+ * Rewrite URLs in the HTML fragment:
+ * - href pointing to HubSpot origin → local relative paths (keeps navigation on-site)
+ * - src pointing to root-relative paths → absolute HubSpot URLs (so images load)
+ * - href pointing to root-relative paths that look like assets → absolute HubSpot URLs
  */
 function _hs_rewrite_urls(string $html, string $source_url): string {
     $parts  = parse_url($source_url);
     $origin = $parts['scheme'] . '://' . $parts['host'];
+    $origin_http = 'http://' . $parts['host'];
+    $origin_https = 'https://' . $parts['host'];
 
-    return preg_replace_callback(
-        '/(src|href)="(\/[^"]*)"/i',
-        fn($m) => $m[1] . '="' . $origin . $m[2] . '"',
+    // First: rewrite absolute HubSpot links to local relative paths
+    $html = preg_replace_callback(
+        '/href="(https?:\/\/' . preg_quote($parts['host'], '/') . ')(\/[^"]*)"/i',
+        fn($m) => 'href="' . $m[2] . '"',
         $html
     );
+
+    // Second: rewrite root-relative src to absolute HubSpot URLs (images, scripts, etc.)
+    $html = preg_replace_callback(
+        '/src="(\/[^"]*)"/i',
+        fn($m) => 'src="' . $origin . $m[1] . '"',
+        $html
+    );
+
+    // Third: rewrite root-relative href for assets (files with extensions) to absolute HubSpot URLs
+    // but leave page links (no extension or trailing slash) as local relative paths
+    $html = preg_replace_callback(
+        '/href="(\/[^"]*\.[a-z0-9]{2,5})"/i',
+        fn($m) => 'href="' . $origin . $m[1] . '"',
+        $html
+    );
+
+    return $html;
 }
 
 function _hs_error(string $msg): string {
