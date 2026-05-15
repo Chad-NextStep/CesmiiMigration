@@ -62,6 +62,9 @@ if [ -z "$NODE" ]; then
     exit 1
 fi
 
+echo "$STAMP Clearing proxy cache..."
+rm -f /tmp/cesmii_*.html /tmp/cesmii_*_title.txt
+
 echo "$STAMP Building..."
 "$NODE" build.js
 echo "$STAMP Deploy complete."
