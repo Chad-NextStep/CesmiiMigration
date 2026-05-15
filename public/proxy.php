@@ -6,6 +6,7 @@
  * Usage in a generated page:
  *   require_once $_SERVER['DOCUMENT_ROOT'] . '/proxy.php';
  *   echo hs_fetch('https://43818189.hs-sites.com/page-slug');
+ *   echo hs_fetch('https://membershiphub.cesmii.org/membership-sign-in');
  */
 
 // Belt-and-suspenders guard — nginx blocks direct requests, but just in case.
@@ -14,7 +15,7 @@ if (__FILE__ === realpath($_SERVER['SCRIPT_FILENAME'] ?? '')) {
     exit;
 }
 
-const HS_ALLOWED_HOST  = '43818189.hs-sites.com';
+const HS_ALLOWED_HOSTS = ['43818189.hs-sites.com', 'membershiphub.cesmii.org'];
 const HS_CACHE_TTL     = 3600;  // seconds; cached in system temp dir
 const HS_FETCH_TIMEOUT = 10;    // curl timeout in seconds
 
@@ -23,7 +24,11 @@ const HS_FETCH_TIMEOUT = 10;    // curl timeout in seconds
  * Caches results on disk; serves stale cache if upstream is unreachable.
  */
 function hs_fetch(string $url): string {
-    if (!str_starts_with($url, 'https://' . HS_ALLOWED_HOST . '/')) {
+    $allowed = false;
+    foreach (HS_ALLOWED_HOSTS as $host) {
+        if (str_starts_with($url, 'https://' . $host . '/')) { $allowed = true; break; }
+    }
+    if (!$allowed) {
         return _hs_error('Disallowed URL.');
     }
 
@@ -232,7 +237,11 @@ function _hs_extract_title(string $html): string {
  * (and sidecar write) if the cache is absent or stale.
  */
 function hs_fetch_title(string $url): string {
-    if (!str_starts_with($url, 'https://' . HS_ALLOWED_HOST . '/')) return '';
+    $allowed = false;
+    foreach (HS_ALLOWED_HOSTS as $host) {
+        if (str_starts_with($url, 'https://' . $host . '/')) { $allowed = true; break; }
+    }
+    if (!$allowed) return '';
     $title_file = sys_get_temp_dir() . '/cesmii_' . md5($url) . '_title.txt';
     if (is_file($title_file) && (time() - filemtime($title_file)) < HS_CACHE_TTL) {
         $t = file_get_contents($title_file);
