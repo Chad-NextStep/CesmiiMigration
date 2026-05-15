@@ -290,7 +290,7 @@ html, body {
   top: calc(100% + 6px);
   left: 0;
   min-width: 210px;
-  background: #000000;
+  background: #1c53a3;
   border-radius: 0;
   box-shadow: var(--shadow-nav);
   padding: 0.4rem 0;
