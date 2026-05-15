@@ -204,9 +204,11 @@ function _hs_rewrite_urls(string $html, string $source_url): string {
         '/href="(https?:\/\/' . preg_quote($parts['host'], '/') . ')(\/[^"]*)"/i',
         function ($m) {
             $full = $m[1] . $m[2];
+            $fullNoQs = strtok($full, '?');
+            $pathNoQs = strtok($m[2], '?');
             foreach (HS_NO_REWRITE as $skip) {
-                if ($full === $skip || str_starts_with($full, $skip . '/')) return $m[0];
-                if ($m[2] === $skip || str_starts_with($m[2], $skip . '/')) return $m[0];
+                if ($fullNoQs === $skip || str_starts_with($fullNoQs, $skip . '/')) return $m[0];
+                if ($pathNoQs === $skip || str_starts_with($pathNoQs, $skip . '/')) return $m[0];
             }
             return 'href="' . $m[2] . '"';
         },
