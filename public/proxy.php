@@ -16,6 +16,9 @@ if (__FILE__ === realpath($_SERVER['SCRIPT_FILENAME'] ?? '')) {
 }
 
 const HS_ALLOWED_HOSTS = ['43818189.hs-sites.com', 'membershiphub.cesmii.org'];
+const HS_NO_REWRITE    = [
+    'https://membershiphub.cesmii.org/welcome',
+];
 const HS_CACHE_TTL     = 3600;  // seconds; cached in system temp dir
 const HS_FETCH_TIMEOUT = 10;    // curl timeout in seconds
 
@@ -196,9 +199,17 @@ function _hs_rewrite_urls(string $html, string $source_url): string {
     $origin_https = 'https://' . $parts['host'];
 
     // First: rewrite absolute HubSpot links to local relative paths
+    // (skip URLs in HS_NO_REWRITE)
     $html = preg_replace_callback(
         '/href="(https?:\/\/' . preg_quote($parts['host'], '/') . ')(\/[^"]*)"/i',
-        fn($m) => 'href="' . $m[2] . '"',
+        function ($m) {
+            $full = $m[1] . $m[2];
+            foreach (HS_NO_REWRITE as $skip) {
+                if ($full === $skip || str_starts_with($full, $skip . '/')) return $m[0];
+                if ($m[2] === $skip || str_starts_with($m[2], $skip . '/')) return $m[0];
+            }
+            return 'href="' . $m[2] . '"';
+        },
         $html
     );
 
