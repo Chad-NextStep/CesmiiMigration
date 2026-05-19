@@ -199,12 +199,12 @@ function _hs_rewrite_urls(string $html, string $source_url): string {
     $origin_http = 'http://' . $parts['host'];
     $origin_https = 'https://' . $parts['host'];
 
-    // First: rewrite absolute HubSpot links to local relative paths
+    // First: rewrite absolute and protocol-relative HubSpot links to local relative paths
     // (skip URLs in HS_NO_REWRITE)
     $html = preg_replace_callback(
-        '/href="(https?:\/\/' . preg_quote($parts['host'], '/') . ')(\/[^"]*)"/i',
+        '/href="((?:https?:)?\/\/' . preg_quote($parts['host'], '/') . ')(\/[^"]*)"/i',
         function ($m) {
-            $full = $m[1] . $m[2];
+            $full = preg_replace('/^\/\//', 'https://', $m[1]) . $m[2];
             $fullNoQs = strtok($full, '?');
             $pathNoQs = strtok($m[2], '?');
             foreach (HS_NO_REWRITE as $skip) {
