@@ -29,6 +29,7 @@ const {
 // nginx routes unmatched paths to out/dynamic.php, which handles these.
 const DYNAMIC_SECTIONS = [
   { prefix: '/bio', hsBase: 'https://43818189.hs-sites.com/bio' },
+  { prefix: '/news', hsBase: 'https://43818189.hs-sites.com/news' },
 ];
 
 const PROJECT_ROOT = __dirname;
