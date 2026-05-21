@@ -215,6 +215,22 @@ function _hs_rewrite_urls(string $html, string $source_url): string {
         $html
     );
 
+    // Rewrite onclick location.href URLs (e.g. blog filter buttons)
+    $html = preg_replace_callback(
+        '/location\.href=\'((?:https?:)?\/\/' . preg_quote($parts['host'], '/') . ')(\/[^\']*)\'/i',
+        function ($m) {
+            $full = preg_replace('/^\/\//', 'https://', $m[1]) . $m[2];
+            $fullNoQs = strtok($full, '?');
+            $pathNoQs = strtok($m[2], '?');
+            foreach (HS_NO_REWRITE as $skip) {
+                if ($fullNoQs === $skip || str_starts_with($fullNoQs, $skip . '/')) return $m[0];
+                if ($pathNoQs === $skip || str_starts_with($pathNoQs, $skip . '/')) return $m[0];
+            }
+            return "location.href='" . $m[2] . "'";
+        },
+        $html
+    );
+
     // Second: rewrite root-relative src to absolute HubSpot URLs (images, scripts, etc.)
     $html = preg_replace_callback(
         '/src="(\/[^"]*)"/i',
