@@ -15,8 +15,9 @@ if (__FILE__ === realpath($_SERVER['SCRIPT_FILENAME'] ?? '')) {
     exit;
 }
 
-const HS_ALLOWED_HOSTS = ['43818189.hs-sites.com', 'membershiphub.cesmii.org'];
-const HS_NO_REWRITE    = [
+const HS_ALLOWED_HOSTS        = ['43818189.hs-sites.com', 'membershiphub.cesmii.org'];
+const HS_ALLOWED_SCRIPT_HOSTS = [ ];  // non-HubSpot script hosts to allow through
+const HS_NO_REWRITE           = [
     'https://membershiphub.cesmii.org/welcome',
 ];
 const HS_CACHE_TTL     = 3600;  // seconds; cached in system temp dir
@@ -108,11 +109,22 @@ function _hs_extract(string $html, string $source_url): string {
         $css_parts[] = $node->textContent;
     }
 
-    // Strip all non-content elements.
-    foreach (['script', 'style', 'link', 'noscript', 'header', 'footer', 'nav', 'iframe'] as $tag) {
+    // Strip chrome and non-content elements (scripts handled separately below).
+    foreach (['style', 'link', 'noscript', 'header', 'footer', 'nav', 'iframe'] as $tag) {
         foreach (iterator_to_array($xpath->query("//{$tag}")) as $node) {
             $node->parentNode?->removeChild($node);
         }
+    }
+
+    // Scripts: keep inline scripts and HubSpot-hosted external scripts.
+    // Strip third-party scripts unless their host is in HS_ALLOWED_SCRIPT_HOSTS.
+    foreach (iterator_to_array($xpath->query('//script')) as $node) {
+        $src = $node->getAttribute('src');
+        if ($src === '') continue;                              // inline — keep
+        if (_hs_is_hubspot_script($src)) continue;             // HubSpot CDN — keep
+        $host = parse_url($src, PHP_URL_HOST) ?: '';
+        if (in_array($host, HS_ALLOWED_SCRIPT_HOSTS, true)) continue;  // whitelisted — keep
+        $node->parentNode?->removeChild($node);
     }
 
     $container = $xpath->query('//main')->item(0)
@@ -247,6 +259,19 @@ function _hs_rewrite_urls(string $html, string $source_url): string {
     );
 
     return $html;
+}
+
+/**
+ * Returns true if a script src is HubSpot-hosted and safe to pass through.
+ * Root-relative paths (/hs/...) are HubSpot's own static assets.
+ */
+function _hs_is_hubspot_script(string $src): bool {
+    if (str_starts_with($src, '/')) return true;
+    $host = parse_url($src, PHP_URL_HOST) ?: '';
+    return str_ends_with($host, '.hubspot.com')
+        || str_ends_with($host, '.hs-sites.com')
+        || str_ends_with($host, 'hubspotusercontent-na1.net')
+        || str_ends_with($host, 'hubspotusercontent-eu1.net');
 }
 
 function _hs_error(string $msg): string {
