@@ -438,7 +438,7 @@ html, body {
 
 .site-footer {
   background: linear-gradient(135deg, #00aeef, #2b47da);
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-white);
   font-size: 1rem;
   line-height: 1.7;
   flex-shrink: 0;
@@ -468,7 +468,7 @@ html, body {
 }
 
 .footer-tagline {
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--color-white);
   font-size: 0.9rem;
   margin: 0;
 }
@@ -481,7 +481,7 @@ html, body {
 }
 
 .footer-social a {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-white);
   display: flex;
   align-items: center;
   transition: color var(--transition);
@@ -508,11 +508,11 @@ html, body {
 
 .footer-col p {
   margin: 0 0 0.25rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-white);
 }
 
 .footer-col a {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-white);
   transition: color var(--transition);
 }
 
@@ -525,7 +525,7 @@ html, body {
   text-align: center;
   padding: 0.75rem 1.5rem;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-white);
 }
 
 /* === Responsive === */
