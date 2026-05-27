@@ -30,6 +30,8 @@ const {
 const DYNAMIC_SECTIONS = [
   { prefix: '/bio', hsBase: 'https://43818189.hs-sites.com/bio' },
   { prefix: '/news', hsBase: 'https://43818189.hs-sites.com/news' },
+  { prefix: '/projects', hsBase: 'https://43818189.hs-sites.com/projects' },
+  { prefix: '/project', hsBase: 'https://43818189.hs-sites.com/project' },
 ];
 
 const PROJECT_ROOT = __dirname;
