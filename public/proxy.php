@@ -259,16 +259,9 @@ function _hs_rewrite_urls(string $html, string $source_url): string {
     );
 
     // Fix bare-domain hrefs missing a protocol (e.g. href="example.com")
-    $html = preg_replace_callback(
-        '/href="([a-z0-9][\w.-]+\.[a-z]{2,})([\/"][^"]*)?"/i',
-        function ($m) {
-            // Only match if it looks like a domain (contains a dot, no spaces, no slashes before the dot)
-            $domain = $m[0];
-            if (preg_match('/^href="([^\/:"]+\.[a-z]{2,})(\/[^"]*)?"/i', $domain, $dm)) {
-                return 'href="https://' . $dm[1] . ($dm[2] ?? '') . '"';
-            }
-            return $m[0];
-        },
+    $html = preg_replace(
+        '/href="(?!https?:\/\/|\/\/|\/|#|mailto:|tel:|javascript:)([^"]+\.[a-z]{2,}[^"]*)"/i',
+        'href="https://$1"',
         $html
     );
 
