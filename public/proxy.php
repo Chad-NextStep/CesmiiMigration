@@ -260,7 +260,7 @@ function _hs_rewrite_urls(string $html, string $source_url): string {
 
     // Fix bare-domain hrefs missing a protocol (e.g. href="example.com")
     $html = preg_replace(
-        '/href="(?!https?:\/\/|\/\/|\/|#|mailto:|tel:|javascript:)([^"]+\.[a-z]{2,}[^"]*)"/i',
+        '/href="(?!https?:\/\/|\/\/|\/|#|mailto:|tel:|javascript:)([^"\/]+\.[a-z]{2,}(?:\/[^"]*)?)"/i',
         'href="https://$1"',
         $html
     );
