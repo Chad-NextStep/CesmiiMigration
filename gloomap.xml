@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gloomaps scheme="1.0">
   <link>https://www.gloomaps.com/PEeMYZqd3t</link>
-  <pubdate>05/26/2026</pubdate>
+  <pubdate>06/04/2026</pubdate>
   <section>
     <box>
       <text>cesmii.org
@@ -331,7 +331,7 @@ Credentials</text>
         </box>
         <box>
           <text>Events
-#https://43818189.hs-sites.com/events</text>
+#http://43818189.hs-sites.com/events</text>
           <member/>
         </box>
         <box>
