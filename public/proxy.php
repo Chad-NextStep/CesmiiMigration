@@ -127,8 +127,16 @@ function _hs_extract(string $html, string $source_url): string {
         $node->parentNode?->removeChild($node);
     }
 
-    $container = $xpath->query('//main')->item(0)
-              ?? $xpath->query('//body')->item(0);
+    // Collect kept scripts from the full body before narrowing to <main>.
+    $body_scripts = '';
+    $body = $xpath->query('//body')->item(0);
+    if ($body) {
+        foreach (iterator_to_array($xpath->query('//body//script')) as $node) {
+            $body_scripts .= $dom->saveHTML($node);
+        }
+    }
+
+    $container = $xpath->query('//main')->item(0) ?? $body;
 
     if ($container === null) {
         return _hs_error('Could not extract page content.');
@@ -137,6 +145,11 @@ function _hs_extract(string $html, string $source_url): string {
     $fragment = '';
     foreach ($container->childNodes as $child) {
         $fragment .= $dom->saveHTML($child);
+    }
+
+    // Append any kept scripts that lived outside <main>.
+    if ($container->nodeName === 'main' && $body_scripts) {
+        $fragment .= $body_scripts;
     }
 
     // Scope all HubSpot CSS inside .content-proxy so it can't affect the shell.
