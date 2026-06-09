@@ -106,6 +106,8 @@ function _hs_extract(string $html, string $source_url): string {
         if ($css !== null) $css_parts[] = $css;
     }
     foreach (iterator_to_array($xpath->query('//style')) as $node) {
+        // Skip <style> inside <noscript> — those rules only apply when JS is off.
+        if ($node->parentNode && $node->parentNode->nodeName === 'noscript') continue;
         $css_parts[] = $node->textContent;
     }
 
