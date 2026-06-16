@@ -118,6 +118,13 @@ function _hs_extract(string $html, string $source_url): string {
         }
     }
 
+    // Strip HubSpot's built-in blog tag filter widget (replaced by custom filters).
+    foreach (iterator_to_array($xpath->query(
+        '//*[contains(@class,"blog-index__filter-tags-container")]'
+    )) as $node) {
+        $node->parentNode?->removeChild($node);
+    }
+
     // Scripts: keep inline scripts and HubSpot-hosted external scripts.
     // Strip third-party scripts unless their host is in HS_ALLOWED_SCRIPT_HOSTS.
     foreach (iterator_to_array($xpath->query('//script')) as $node) {
