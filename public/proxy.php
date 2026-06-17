@@ -16,7 +16,7 @@ if (__FILE__ === realpath($_SERVER['SCRIPT_FILENAME'] ?? '')) {
 }
 
 const HS_ALLOWED_HOSTS        = ['43818189.hs-sites.com', 'membershiphub.cesmii.org'];
-const HS_ALLOWED_SCRIPT_HOSTS = [ ];  // non-HubSpot script hosts to allow through
+const HS_ALLOWED_SCRIPT_HOSTS = ['unpkg.com'];  // non-HubSpot script hosts to allow through
 const HS_NO_REWRITE           = [
     'https://membershiphub.cesmii.org/welcome',
 ];
