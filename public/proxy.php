@@ -19,6 +19,7 @@ const HS_ALLOWED_HOSTS        = ['43818189.hs-sites.com', 'membershiphub.cesmii.
 const HS_ALLOWED_SCRIPT_HOSTS = ['unpkg.com'];  // non-HubSpot script hosts to allow through
 const HS_NO_REWRITE           = [
     'https://membershiphub.cesmii.org/welcome',
+    'https://43818189.hs-sites.com/members',
 ];
 const HS_CACHE_TTL     = 3600;  // seconds; cached in system temp dir
 const HS_FETCH_TIMEOUT = 10;    // curl timeout in seconds
