@@ -21,6 +21,12 @@ const HS_NO_REWRITE           = [
     'https://membershiphub.cesmii.org/welcome',
     'https://43818189.hs-sites.com/members',
 ];
+// HubSpot paths that don't match the local nav hierarchy.
+// After absolute→relative rewriting, these flat paths are remapped to their local equivalents.
+const HS_PATH_MAP = [
+    '/board-of-directors' => '/about/board-of-directors',
+    '/smec'               => '/about/sm-executive-council',
+];
 const HS_CACHE_TTL     = 3600;  // seconds; cached in system temp dir
 const HS_FETCH_TIMEOUT = 10;    // curl timeout in seconds
 
@@ -262,6 +268,22 @@ function _hs_rewrite_urls(string $html, string $source_url): string {
                 if ($pathNoQs === $skip || str_starts_with($pathNoQs, $skip . '/')) return $m[0];
             }
             return "location.href='" . $m[2] . "'";
+        },
+        $html
+    );
+
+    // Remap HubSpot paths to their local nav-hierarchy equivalents (e.g. /smec → /about/sm-executive-council)
+    $html = preg_replace_callback(
+        '/href="(\/[^"]*)"/i',
+        function ($m) {
+            $path = strtok($m[1], '?');
+            $qs   = (strpos($m[1], '?') !== false) ? substr($m[1], strpos($m[1], '?')) : '';
+            foreach (HS_PATH_MAP as $from => $to) {
+                if ($path === $from || str_starts_with($path, $from . '/')) {
+                    return 'href="' . $to . substr($path, strlen($from)) . $qs . '"';
+                }
+            }
+            return $m[0];
         },
         $html
     );
