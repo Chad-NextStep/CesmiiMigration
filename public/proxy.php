@@ -296,9 +296,11 @@ function _hs_rewrite_urls(string $html, string $source_url): string {
     );
 
     // Third: rewrite root-relative href for assets (files with extensions) to absolute HubSpot URLs
-    // but leave page links (no extension or trailing slash) as local relative paths
+    // but leave page links (no extension or trailing slash) as local relative paths.
+    // (?!\/) excludes protocol-relative URLs (//example.com) from being treated as assets.
+    // (?:\?[^"]*)? allows an optional query string after the file extension.
     $html = preg_replace_callback(
-        '/href="(\/[^"]*\.[a-z0-9]{2,5})"/i',
+        '/href="(\/(?!\/)[^"?]*\.[a-z0-9]{2,5}(?:\?[^"]*)?)"/i',
         fn($m) => 'href="' . $origin . $m[1] . '"',
         $html
     );
